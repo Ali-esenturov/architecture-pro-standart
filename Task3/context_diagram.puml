@@ -10,17 +10,13 @@ System_Boundary(bank, "Банк") {
     System(callcenter, "Система колл-центра", "Обработка входящих заявок")
     System(abs, "АБС", "Core banking — депозиты, счета, операции")
     System(sms, "SMS-шлюз", "Отправка кодов подтверждения")
-    System(scoring, "Скоринговая система", "Оценка риска и проверка клиента")
 }
 
 Rel(customer, public_site, "Оставляет заявку")
 Rel(public_site, callcenter, "Передаёт заявку")
 
-Rel(customer, ib, "Авторизован / подаёт заявку")
+Rel(customer, ib, "Авторизован / подаёт заявку / вводи код")
 Rel(ib, sms, "Запрос SMS-кода для подтверждения")
-Rel(customer, sms, "Получает код и вводит в ИБ")
-
-Rel(ib, scoring, "Проверка клиента (опционально)")
 
 Rel(ib, abs, "Создание депозита / проверка условий")
 Rel(callcenter, abs, "Передача заявки в АБС")

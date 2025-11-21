@@ -6,7 +6,6 @@ Person(customer, "Клиент")
 System(public_site, "Публичный сайт", "Просмотр продуктов, подача заявки")
 System(callcenter, "Система колл-центра", "Обработка заявок с сайта")
 System(mq, "Message Queue / Event Bus", "Буферизация заявок")
-System(scoring, "Скоринговая система", "Опциональная проверка риска")
 System(sms_service, "SMS-сервис", "Отправка и проверка кодов")
 
 System_Boundary(ib_sys, "Интернет-банк") {
@@ -26,10 +25,6 @@ Rel(callcenter, mq, "Публикация заявки в очередь")
 Rel(customer, ib_ui, "Подаёт заявку / вводит SMS-код")
 Rel(ib_ui, ib_backend, "REST API")
 Rel(ib_backend, sms_service, "Отправка SMS-кода / проверка")
-Rel(customer, ib_backend, "Ввод кода для подтверждения")
-
-Rel(ib_backend, scoring, "Опциональная проверка клиента")
-Rel(scoring, ib_backend, "Результат проверки")
 
 Rel(ib_backend, mq, "Публикация подтверждённой заявки")
 Rel(mq, abs_api, "Получение заявки для обработки")
