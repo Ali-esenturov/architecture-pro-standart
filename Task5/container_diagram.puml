@@ -1,0 +1,54 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(WebUser, "Пользователь сайта")
+Person(IBUser, "Клиент интернет-банка")
+Person(BranchManager, "Сотрудник бэк-офиса")
+
+System_Ext(BKI, "БКИ", "Внешнее бюро кредитных историй")
+
+System_Boundary(BANK, "Банк") {
+
+    Container(WebBE, "Web Backend", "PHP", "Обработка заявок с сайта")
+    Container(WebFE, "Web Frontend", "React.js", "Интерфейс сайта")
+
+    Container(IBBE, "IB Backend", ".NET MVC + MS SQL", "Обработка заявок и офферов интернет-банка")
+    Container(IBFE, "IB Frontend", "JS/HTML", "Интерфейс интернет-банка")
+
+    Container(CreditCore, "Credit Core Service", "Java / Go / Node.js", "Оркестрация кредитных заявок")
+    ContainerDb(CreditCoreDB, "PostgreSQL", "Хранение внутренних данных Credit Core")
+
+    Container(Pipeline, "Кредитный конвейер", "Camunda + Oracle", "Хранение и обработка заявок от сотрудников")
+    ContainerDb(PipelineDB, "Oracle", "База данных Pipeline")
+
+    Container(Scoring, "Скоринг", "Python + Flask + PostgreSQL", "Расчет скоринга клиентов")
+    ContainerDb(ScoringDB, "PostgreSQL", "Данные модели скоринга")
+
+    Container(ABS, "АБС", "Delphi + Oracle", "Кредитные операции в отделении")
+    ContainerDb(ABSDB, "Oracle", "База данных АБС")
+
+    Container(SMS, "SMS Service", "Java/Node.js", "Отправка уведомлений клиентам")
+}
+
+Rel(WebUser, WebFE, "Просмотр кредитов / подача заявки")
+Rel(IBUser, IBFE, "Просмотр офферов / подача заявки")
+Rel(BranchManager, ABS, "Создание / обработка заявок")
+
+Rel(WebFE, WebBE, "HTTP API")
+Rel(IBFE, IBBE, "HTTP API")
+
+Rel(WebBE, CreditCore, "API: создание заявки")
+Rel(IBBE, CreditCore, "API: создание заявки / получение условий")
+
+Rel(CreditCore, Scoring, "REST: запрос скоринга")
+Rel(CreditCore, BKI, "REST: запрос кредитной истории")
+Rel(CreditCore, Pipeline, "REST/async: создание и обновление заявки")
+Rel(CreditCore, ABS, "REST/async: синхронизация заявки")
+Rel(CreditCore, SMS, "REST: отправка уведомлений")
+
+Rel(CreditCore, CreditCoreDB, "")
+Rel(Pipeline, PipelineDB, "")
+Rel(Scoring, ScoringDB, "")
+Rel(ABS, ABSDB, "")
+
+@enduml
