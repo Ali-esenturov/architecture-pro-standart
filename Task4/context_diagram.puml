@@ -1,0 +1,21 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(customer, "Клиент банка", "Обращается в колл-центр для уточнения ставок")
+
+System_Boundary(bank, "Банк") {
+    System(abs, "АБС", "Источник актуальных депозитных ставок")
+    System(rateExporter, "Rate Exporter", "Выгружает ставки из АБС и сохраняет файл в S3")
+    System(s3, "S3 Хранилище", "Единое файловое хранилище банка")
+    System(callcenter, "Внутренний колл-центр", "Получает актуальные ставки и показывает операторам")
+}
+
+System_Ext(partnerCC, "Партнёрский колл-центр", "Внешняя система, сотрудники скачивают файл вручную")
+
+Rel(customer, callcenter, "Обращается за информацией о ставках")
+Rel(abs, rateExporter, "Предоставляет ставки")
+Rel(rateExporter, s3, "Сохраняет файл ставок")
+Rel(callcenter, s3, "Периодически скачивает файл (cron job)")
+Rel(partnerCC, s3, "Ручное скачивание файла")
+
+@enduml

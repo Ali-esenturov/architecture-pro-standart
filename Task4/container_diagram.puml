@@ -1,0 +1,37 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor #FBFCFF
+  BorderColor #3A6EA5
+  RoundCorner 12
+}
+
+actor "Оператор колл-центра" as Operator
+actor "Оператор партнёра" as Partner
+
+rectangle "БАНК" as Bank {
+
+  rectangle "АБС\nCore Banking\n(Источник ставок)" as ABS
+
+  rectangle "Rate Exporter\n(Сервис экспорта данных)\n- Читает ставки из АБС\n- Генерирует CSV/JSON\n- Кладёт в S3" as Exporter
+
+  rectangle "S3 Хранилище\n(Файлы ставок)" as S3
+
+  rectangle "Внутренний Колл-центр" as CC {
+    rectangle "CallCenter Backend\n(Java Spring Boot)\n- Cron загрузка файла\n- Обновление БД" as CCBE
+    rectangle "CallCenter DB\n(PostgreSQL)" as CCDB
+    rectangle "CallCenter UI\n(React)\n- Запрашивает данные у Backend" as CCUI
+  }
+}
+
+rectangle "Партнёрский\nколл-центр" as PartnerCC
+
+ABS --> Exporter : API (выгрузка ставок)
+Exporter --> S3 : upload файла
+CCBE --> S3 : скачивание файла
+CCBE --> CCDB : запись ставок
+CCUI --> CCBE : запрос ставок (HTTP/JSON)
+PartnerCC --> S3 : ручное скачивание файла
+Operator --> CCUI : использует интерфейс
+Partner --> PartnerCC : использует интерфейс
+
+@enduml

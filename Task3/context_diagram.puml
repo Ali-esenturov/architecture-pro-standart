@@ -1,0 +1,24 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(customer, "Клиент")
+
+System_Boundary(bank, "Банк") {
+
+    System(public_site, "Публичный сайт", "Подача заявок для новых клиентов")
+    System(ib, "Интернет-банк", "Подача заявок авторизованными клиентами")
+    System(callcenter, "Система колл-центра", "Обработка входящих заявок")
+    System(abs, "АБС", "Core banking — депозиты, счета, операции")
+    System(sms, "SMS-шлюз", "Отправка кодов подтверждения")
+}
+
+Rel(customer, public_site, "Оставляет заявку")
+Rel(public_site, callcenter, "Передаёт заявку")
+
+Rel(customer, ib, "Авторизован / подаёт заявку / вводи код")
+Rel(ib, sms, "Запрос SMS-кода для подтверждения")
+
+Rel(ib, abs, "Создание депозита / проверка условий")
+Rel(callcenter, abs, "Передача заявки в АБС")
+
+@enduml

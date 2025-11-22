@@ -1,0 +1,38 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(webUser, "Пользователь сайта", "Подаёт заявки на кредит")
+Person(ibUser, "Клиент интернет-банка", "Получает персональные предложения")
+Person(branchManager, "Менеджер отделения", "Подаёт и продолжает заявки")
+
+System_Ext(bki, "БКИ", "Бюро кредитных историй")
+
+System_Boundary(bank, "Банк") {
+
+    System(webBE, "Web Backend", "Backend публичного сайта")
+    System(ibBE, "IB Backend", "Backend интернет-банка")
+
+    System(creditService, "Credit Core service", "Сервис управления кредитными заявками")
+
+    System(abs, "АБС", "Система отделений")
+    System(pipeline, "Кредитный конвейер", "Обработка и хранение кредитных заявок")
+    System(smsService, "SMS service", "Отправка SMS")
+
+    System(scoring, "Скоринг", "Система кредитного скоринга")
+}
+
+Rel(webUser, webBE, "Просмотр кредитов\nПодача заявки")
+Rel(ibUser, ibBE, "Просмотр персональных предложений\nПодача заявки")
+
+Rel(webBE, creditService, "API: создание заявки")
+Rel(ibBE, creditService, "API: создание заявки, получение условий")
+
+Rel(creditService, scoring, "Запрос скоринга")
+Rel(creditService, bki, "Запрос кредитной истории")
+Rel(creditService, pipeline, "Создание / обновление заявки")
+Rel(creditService, smsService, "Отправка уведомлений")
+
+Rel(branchManager, abs, "Создание/обработка заявок")
+Rel(abs, creditService, "Получение/обновление заявки")
+
+@enduml
